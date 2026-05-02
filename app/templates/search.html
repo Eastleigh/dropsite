@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if query %}{{ query }} — {% endif %}PDF Trend Finder</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #6C63FF;
+      --primary-dark: #5A52E0;
+      --primary-light: #8B85FF;
+      --accent: #00D4AA;
+      --bg: #06060B;
+      --bg-card: #0F0F18;
+      --bg-card-hover: #16162A;
+      --text: #EEEEF0;
+      --text-muted: #7878A0;
+      --border: #1E1E35;
+      --success: #22C55E;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body::before {
+      content: '';
+      position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(108, 99, 255, 0.06) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 212, 170, 0.04) 0%, transparent 50%);
+      z-index: -1;
+    }
+
+    nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 16px 40px; max-width: 1400px; margin: 0 auto;
+    }
+    .logo {
+      font-size: 1.2rem; font-weight: 800; color: var(--text); text-decoration: none;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .logo-icon {
+      width: 28px; height: 28px; background: var(--primary); border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .logo-icon svg { width: 16px; height: 16px; }
+    .logo span { color: var(--primary); }
+    .nav-links { display: flex; gap: 20px; align-items: center; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+    .btn-sm { padding: 6px 12px; font-size: 0.8rem; }
+    .btn-save { background: rgba(0, 212, 170, 0.1); color: var(--accent); border: 1px solid rgba(0, 212, 170, 0.2); }
+    .btn-save:hover { background: rgba(0, 212, 170, 0.2); }
+
+    .container { max-width: 1400px; margin: 0 auto; padding: 0 40px 60px; }
+
+    /* Search bar */
+    .search-bar {
+      display: flex; gap: 12px; margin-bottom: 32px;
+    }
+    .search-bar input {
+      flex: 1; padding: 14px 20px; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 12px; color: var(--text); font-family: inherit; font-size: 1rem; outline: none;
+      transition: border-color 0.2s;
+    }
+    .search-bar input:focus { border-color: var(--primary); }
+    .search-bar input::placeholder { color: var(--text-muted); opacity: 0.5; }
+    .search-bar button {
+      padding: 14px 28px; background: var(--primary); color: white; border: none;
+      border-radius: 12px; font-family: inherit; font-size: 0.95rem; font-weight: 600;
+      cursor: pointer; transition: background 0.2s; white-space: nowrap;
+    }
+    .search-bar button:hover { background: var(--primary-dark); }
+
+    /* Quick categories */
+    .quick-cats {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px;
+    }
+    .quick-cat {
+      padding: 6px 14px; background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: 20px; color: var(--text-muted); font-size: 0.8rem; text-decoration: none;
+      transition: all 0.2s; cursor: pointer;
+    }
+    .quick-cat:hover, .quick-cat.active { background: rgba(108, 99, 255, 0.1); border-color: var(--primary); color: var(--primary-light); }
+
+    /* Layout */
+    .results-grid {
+      display: grid; grid-template-columns: 1fr 380px; gap: 24px;
+    }
+
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px; margin-bottom: 20px;
+    }
+    .card h2 {
+      font-size: 1rem; font-weight: 700; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card h2 .count {
+      font-size: 0.75rem; background: rgba(108, 99, 255, 0.15); color: var(--primary-light);
+      padding: 2px 8px; border-radius: 10px; font-weight: 600;
+    }
+
+    /* Loading states */
+    .loading { text-align: center; padding: 40px; color: var(--text-muted); }
+    .spinner {
+      width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--primary);
+      border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Suggestion pills */
+    .suggestions-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .suggestion-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 14px; background: rgba(108, 99, 255, 0.06); border: 1px solid rgba(108, 99, 255, 0.15);
+      border-radius: 10px; font-size: 0.85rem; color: var(--text); cursor: pointer;
+      transition: all 0.2s;
+    }
+    .suggestion-pill:hover {
+      background: rgba(108, 99, 255, 0.12); border-color: var(--primary);
+    }
+    .suggestion-pill .save-icon {
+      width: 18px; height: 18px; display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; font-size: 0.7rem; color: var(--accent); cursor: pointer;
+      transition: all 0.2s; opacity: 0;
+    }
+    .suggestion-pill:hover .save-icon { opacity: 1; }
+
+    /* Related queries table */
+    .query-table { width: 100%; }
+    .query-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 8px; transition: background 0.2s; cursor: pointer;
+    }
+    .query-row:hover { background: var(--bg-card-hover); }
+    .query-text { flex: 1; font-size: 0.9rem; }
+    .query-bar-wrap { width: 120px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .query-bar { height: 100%; background: var(--primary); border-radius: 3px; transition: width 0.5s; }
+    .query-value { font-size: 0.75rem; color: var(--text-muted); min-width: 40px; text-align: right; }
+    .query-save { opacity: 0; transition: opacity 0.2s; background: none; border: none; color: var(--accent); cursor: pointer; font-size: 0.85rem; }
+    .query-row:hover .query-save { opacity: 1; }
+
+    /* Rising badge */
+    .rising-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 2px 8px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: 6px; font-size: 0.7rem; color: var(--success); font-weight: 600;
+    }
+
+    /* Chart */
+    .chart-wrap { height: 220px; position: relative; }
+
+    /* Trending sidebar */
+    .trending-item {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 12px; border-radius: 8px; transition: background 0.2s; cursor: pointer;
+    }
+    .trending-item:hover { background: var(--bg-card-hover); }
+    .trending-num {
+      width: 28px; height: 28px; display: flex; align-items: center; justify-content: center;
+      background: rgba(108, 99, 255, 0.1); border-radius: 8px; font-size: 0.75rem;
+      font-weight: 700; color: var(--primary);
+    }
+    .trending-text { flex: 1; font-size: 0.9rem; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center; padding: 60px 20px; color: var(--text-muted);
+    }
+    .empty-state h3 { font-size: 1.2rem; color: var(--text); margin-bottom: 8px; }
+
+    /* Toast */
+    .toast {
+      position: fixed; bottom: 24px; right: 24px; padding: 14px 24px;
+      background: var(--bg-card); border: 1px solid var(--accent); border-radius: 12px;
+      color: var(--accent); font-size: 0.9rem; font-weight: 600;
+      transform: translateY(100px); opacity: 0; transition: all 0.3s; z-index: 100;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 1000px) {
+      .results-grid { grid-template-columns: 1fr; }
+      .container { padding: 0 16px 40px; }
+      nav { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 18 8 12 12 15 16 8 20 10"/>
+        <circle cx="20" cy="10" r="1.5" fill="white"/>
+      </svg>
+    </div>
+    PDF <span>Trend Finder</span>
+  </a>
+  <div class="nav-links">
+    <a href="/search">Search</a>
+    {% if user_id %}
+      <a href="/saved">Saved Ideas</a>
+      <a href="/logout" class="btn btn-outline">Log Out</a>
+    {% else %}
+      <a href="/login" class="btn btn-outline">Log In</a>
+      <a href="/signup" class="btn btn-primary">Sign Up Free</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="container">
+
+  <div class="search-bar">
+    <input type="text" id="searchInput" placeholder="Search any niche... (e.g. keto diet, productivity, AI tools)" value="{{ query }}">
+    <button onclick="doSearch()">Find Ideas</button>
+  </div>
+
+  <div class="quick-cats">
+    {% for cat in categories %}
+      <a class="quick-cat" onclick="searchQuery('{{ cat.queries[0] }}')">{{ cat.name }}</a>
+    {% endfor %}
+  </div>
+
+  <div id="emptyState" class="empty-state" {% if query %}style="display:none"{% endif %}>
+    <h3>Search any niche to get started</h3>
+    <p>Enter a topic above to discover trending PDF guide ideas using real-time search data.</p>
+  </div>
+
+  <div id="resultsArea" class="results-grid" style="{% if not query %}display:none{% endif %}">
+    <!-- Left column -->
+    <div>
+      <!-- Suggestions -->
+      <div class="card" id="suggestionsCard">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+          PDF Guide Ideas <span class="count" id="suggestionsCount">0</span>
+        </h2>
+        <div id="suggestionsLoading" class="loading"><div class="spinner"></div>Fetching ideas from Google...</div>
+        <div id="suggestionsList" class="suggestions-list"></div>
+      </div>
+
+      <!-- Interest over time -->
+      <div class="card" id="chartCard" style="display:none">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Interest Over Time (3 months)
+        </h2>
+        <div class="chart-wrap">
+          <canvas id="trendChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Related queries -->
+      <div class="card" id="relatedCard" style="display:none">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          Related Queries <span class="count" id="relatedCount">0</span>
+        </h2>
+        <div id="relatedLoading" class="loading"><div class="spinner"></div>Analyzing trends...</div>
+        <div id="relatedList" class="query-table"></div>
+      </div>
+
+      <!-- Rising queries -->
+      <div class="card" id="risingCard" style="display:none">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+          Rising Queries <span class="count" id="risingCount">0</span>
+        </h2>
+        <div id="risingList" class="query-table"></div>
+      </div>
+    </div>
+
+    <!-- Right column: Trending Now -->
+    <div>
+      <div class="card" id="trendingCard">
+        <h2>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          Trending Now (US)
+        </h2>
+        <div id="trendingLoading" class="loading"><div class="spinner"></div>Loading trends...</div>
+        <div id="trendingList"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let chart = null;
+const isLoggedIn = {{ 'true' if user_id else 'false' }};
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function searchQuery(q) {
+  document.getElementById('searchInput').value = q;
+  doSearch();
+}
+
+function doSearch() {
+  const q = document.getElementById('searchInput').value.trim();
+  if (!q) return;
+
+  history.replaceState(null, '', '/search?q=' + encodeURIComponent(q));
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('resultsArea').style.display = 'grid';
+
+  fetchSuggestions(q);
+  fetchTrendData(q);
+  fetchTrending();
+}
+
+async function fetchSuggestions(q) {
+  const loading = document.getElementById('suggestionsLoading');
+  const list = document.getElementById('suggestionsList');
+  const count = document.getElementById('suggestionsCount');
+  loading.style.display = 'block';
+  list.innerHTML = '';
+
+  try {
+    const resp = await fetch('/api/trends/suggestions?q=' + encodeURIComponent(q));
+    const data = await resp.json();
+    loading.style.display = 'none';
+    count.textContent = data.suggestions.length;
+
+    data.suggestions.forEach(s => {
+      const pill = document.createElement('div');
+      pill.className = 'suggestion-pill';
+      pill.innerHTML = `
+        <span onclick="searchQuery('${s.replace(/'/g, "\\'")}')">${escHtml(s)}</span>
+        <span class="save-icon" onclick="saveIdea('${s.replace(/'/g, "\\'")}', event)" title="Save idea">+</span>
+      `;
+      list.appendChild(pill);
+    });
+  } catch (e) {
+    loading.innerHTML = '<p>Could not load suggestions.</p>';
+  }
+}
+
+async function fetchTrendData(q) {
+  const relatedLoading = document.getElementById('relatedLoading');
+  const relatedList = document.getElementById('relatedList');
+  const relatedCard = document.getElementById('relatedCard');
+  const relatedCount = document.getElementById('relatedCount');
+  const chartCard = document.getElementById('chartCard');
+  const risingCard = document.getElementById('risingCard');
+  const risingList = document.getElementById('risingList');
+  const risingCount = document.getElementById('risingCount');
+
+  relatedCard.style.display = 'block';
+  relatedLoading.style.display = 'block';
+  relatedList.innerHTML = '';
+  chartCard.style.display = 'none';
+  risingCard.style.display = 'none';
+
+  try {
+    const resp = await fetch('/api/trends/search?q=' + encodeURIComponent(q));
+    const data = await resp.json();
+    relatedLoading.style.display = 'none';
+
+    // Interest over time chart
+    if (data.interest_over_time && data.interest_over_time.length > 0) {
+      chartCard.style.display = 'block';
+      renderChart(data.interest_over_time, q);
+    }
+
+    // Related queries
+    if (data.related_queries && data.related_queries.length > 0) {
+      relatedCount.textContent = data.related_queries.length;
+      data.related_queries.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'query-row';
+        row.innerHTML = `
+          <span class="query-text" onclick="searchQuery('${item.query.replace(/'/g, "\\'")}')">${escHtml(item.query)}</span>
+          <div class="query-bar-wrap"><div class="query-bar" style="width:${item.value}%"></div></div>
+          <span class="query-value">${item.value}</span>
+          <button class="query-save" onclick="saveIdea('${item.query.replace(/'/g, "\\'")}', event)">Save</button>
+        `;
+        relatedList.appendChild(row);
+      });
+    } else {
+      relatedList.innerHTML = '<p style="color:var(--text-muted);font-size:0.9rem;padding:12px">No related queries found. Try a broader topic.</p>';
+    }
+
+    // Rising queries
+    if (data.rising_queries && data.rising_queries.length > 0) {
+      risingCard.style.display = 'block';
+      risingCount.textContent = data.rising_queries.length;
+      data.rising_queries.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'query-row';
+        row.innerHTML = `
+          <span class="query-text" onclick="searchQuery('${item.query.replace(/'/g, "\\'")}')">${escHtml(item.query)}</span>
+          <span class="rising-badge">+${item.value}%</span>
+          <button class="query-save" onclick="saveIdea('${item.query.replace(/'/g, "\\'")}', event)">Save</button>
+        `;
+        risingList.appendChild(row);
+      });
+    }
+  } catch (e) {
+    relatedLoading.innerHTML = '<p style="color:var(--text-muted)">Could not load trend data. Try again.</p>';
+  }
+}
+
+function renderChart(data, label) {
+  const ctx = document.getElementById('trendChart').getContext('2d');
+  if (chart) chart.destroy();
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+  gradient.addColorStop(0, 'rgba(108, 99, 255, 0.3)');
+  gradient.addColorStop(1, 'rgba(108, 99, 255, 0.0)');
+
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d => d.date),
+      datasets: [{
+        label: label,
+        data: data.map(d => d.value),
+        borderColor: '#6C63FF',
+        backgroundColor: gradient,
+        borderWidth: 2,
+        fill: true,
+        tension: 0.4,
+        pointRadius: 0,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: '#6C63FF',
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          backgroundColor: '#0F0F18',
+          borderColor: '#1E1E35',
+          borderWidth: 1,
+          titleColor: '#EEEEF0',
+          bodyColor: '#7878A0',
+          padding: 12,
+          cornerRadius: 8,
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: 'rgba(30,30,53,0.5)', drawBorder: false },
+          ticks: { color: '#7878A0', font: { size: 10 }, maxTicksLimit: 8, maxRotation: 0 },
+        },
+        y: {
+          grid: { color: 'rgba(30,30,53,0.5)', drawBorder: false },
+          ticks: { color: '#7878A0', font: { size: 10 } },
+          beginAtZero: true,
+        }
+      },
+      interaction: { intersect: false, mode: 'index' },
+    }
+  });
+}
+
+async function fetchTrending() {
+  const loading = document.getElementById('trendingLoading');
+  const list = document.getElementById('trendingList');
+  loading.style.display = 'block';
+  list.innerHTML = '';
+
+  try {
+    const resp = await fetch('/api/trends/trending');
+    const data = await resp.json();
+    loading.style.display = 'none';
+
+    data.trending.forEach((item, i) => {
+      const el = document.createElement('div');
+      el.className = 'trending-item';
+      el.onclick = () => searchQuery(item.query);
+      el.innerHTML = `
+        <span class="trending-num">${i + 1}</span>
+        <span class="trending-text">${escHtml(item.query)}</span>
+      `;
+      list.appendChild(el);
+    });
+  } catch (e) {
+    loading.innerHTML = '<p style="color:var(--text-muted)">Could not load trending.</p>';
+  }
+}
+
+async function saveIdea(query, event) {
+  if (event) event.stopPropagation();
+  if (!isLoggedIn) {
+    showToast('Sign up free to save ideas');
+    return;
+  }
+  try {
+    const resp = await fetch('/api/trends/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: query })
+    });
+    if (resp.ok) {
+      showToast('Idea saved!');
+    } else {
+      const data = await resp.json();
+      showToast(data.detail || 'Error saving');
+    }
+  } catch (e) {
+    showToast('Error saving idea');
+  }
+}
+
+function escHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// Handle Enter key
+document.getElementById('searchInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') doSearch();
+});
+
+// Auto-search if query provided
+{% if query %}
+  doSearch();
+{% endif %}
+</script>
+</body>
+</html>

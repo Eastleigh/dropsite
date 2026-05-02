@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Ideas — PDF Trend Finder</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #6C63FF; --primary-dark: #5A52E0; --accent: #00D4AA;
+      --bg: #06060B; --bg-card: #0F0F18; --bg-card-hover: #16162A;
+      --text: #EEEEF0; --text-muted: #7878A0; --border: #1E1E35;
+      --success: #22C55E; --danger: #EF4444;
+      --radius: 16px; --radius-sm: 10px;
+    }
+    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+    body::before {
+      content: ''; position: fixed; top: -50%; left: -50%; width: 200%; height: 200%;
+      background: radial-gradient(circle at 20% 20%, rgba(108, 99, 255, 0.06) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 80%, rgba(0, 212, 170, 0.04) 0%, transparent 50%);
+      z-index: -1;
+    }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 16px 40px; max-width: 1200px; margin: 0 auto; }
+    .logo { font-size: 1.2rem; font-weight: 800; color: var(--text); text-decoration: none; display: flex; align-items: center; gap: 8px; }
+    .logo-icon { width: 28px; height: 28px; background: var(--primary); border-radius: 7px; display: flex; align-items: center; justify-content: center; }
+    .logo-icon svg { width: 16px; height: 16px; }
+    .logo span { color: var(--primary); }
+    .nav-links { display: flex; gap: 20px; align-items: center; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-family: inherit; font-size: 0.85rem; font-weight: 600; text-decoration: none; cursor: pointer; transition: all 0.2s; border: none; }
+    .btn-primary { background: var(--primary); color: white; }
+    .btn-primary:hover { background: var(--primary-dark); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+    .container { max-width: 900px; margin: 0 auto; padding: 20px 40px 60px; }
+    .page-header { margin-bottom: 32px; }
+    .page-header h1 { font-size: 1.8rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 6px; }
+    .page-header p { color: var(--text-muted); font-size: 0.95rem; }
+
+    .saved-count { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(0, 212, 170, 0.08); border: 1px solid rgba(0, 212, 170, 0.2); border-radius: 20px; font-size: 0.8rem; color: var(--accent); font-weight: 600; margin-left: 12px; }
+
+    .saved-grid { display: grid; gap: 12px; }
+
+    .saved-item {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 16px 20px; transition: all 0.2s;
+    }
+    .saved-item:hover { border-color: rgba(108, 99, 255, 0.3); }
+
+    .saved-query { flex: 1; font-size: 0.95rem; font-weight: 600; }
+    .saved-date { font-size: 0.8rem; color: var(--text-muted); }
+    .saved-actions { display: flex; gap: 8px; }
+
+    .action-btn {
+      padding: 6px 12px; border-radius: 6px; font-family: inherit; font-size: 0.8rem;
+      font-weight: 600; cursor: pointer; transition: all 0.2s; border: none;
+    }
+    .action-search { background: rgba(108, 99, 255, 0.1); color: var(--primary); }
+    .action-search:hover { background: rgba(108, 99, 255, 0.2); }
+    .action-delete { background: rgba(239, 68, 68, 0.08); color: var(--danger); }
+    .action-delete:hover { background: rgba(239, 68, 68, 0.15); }
+
+    .empty-state {
+      text-align: center; padding: 80px 20px; color: var(--text-muted);
+    }
+    .empty-state h3 { font-size: 1.2rem; color: var(--text); margin-bottom: 8px; }
+    .empty-state a { color: var(--primary); text-decoration: none; font-weight: 600; }
+
+    @media (max-width: 700px) {
+      .container { padding: 16px 16px 40px; }
+      nav { padding: 12px 16px; }
+      .saved-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 18 8 12 12 15 16 8 20 10"/>
+        <circle cx="20" cy="10" r="1.5" fill="white"/>
+      </svg>
+    </div>
+    PDF <span>Trend Finder</span>
+  </a>
+  <div class="nav-links">
+    <a href="/search">Search</a>
+    <a href="/saved">Saved Ideas</a>
+    <a href="/logout" class="btn btn-outline">Log Out</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h1>Saved Ideas <span class="saved-count">{{ saved_trends | length }}</span></h1>
+    <p>Your bookmarked PDF guide ideas — ready to create and sell.</p>
+  </div>
+
+  {% if saved_trends %}
+  <div class="saved-grid" id="savedGrid">
+    {% for trend in saved_trends %}
+    <div class="saved-item" id="saved-{{ trend.id }}">
+      <div class="saved-query">{{ trend.query }}</div>
+      <div class="saved-date">{{ trend.created_at[:10] if trend.created_at else '' }}</div>
+      <div class="saved-actions">
+        <a href="/search?q={{ trend.query | urlencode }}" class="action-btn action-search">Research</a>
+        <button class="action-btn action-delete" onclick="deleteSaved({{ trend.id }})">Remove</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h3>No saved ideas yet</h3>
+    <p>Search for trending topics and save the ones you want to create PDF guides for.</p>
+    <br>
+    <a href="/search" class="btn btn-primary" style="display: inline-flex;">Start Searching</a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+async function deleteSaved(id) {
+  try {
+    const resp = await fetch('/api/trends/save/' + id, { method: 'DELETE' });
+    if (resp.ok) {
+      const el = document.getElementById('saved-' + id);
+      if (el) {
+        el.style.opacity = '0';
+        el.style.transform = 'translateX(20px)';
+        el.style.transition = 'all 0.3s';
+        setTimeout(() => el.remove(), 300);
+      }
+    }
+  } catch (e) {
+    alert('Error deleting idea');
+  }
+}
+</script>
+</body>
+</html>

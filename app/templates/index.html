@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Trend Finder — Discover What PDF Guides to Create & Sell</title>
+  <meta name="description" content="Find trending topics and questions people are searching for right now. Create PDF guides that sell using real-time search data. Free forever.">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #6C63FF;
+      --primary-dark: #5A52E0;
+      --primary-light: #8B85FF;
+      --accent: #00D4AA;
+      --accent-dark: #00B894;
+      --bg: #06060B;
+      --bg-card: #0F0F18;
+      --bg-card-hover: #16162A;
+      --text: #EEEEF0;
+      --text-muted: #7878A0;
+      --border: #1E1E35;
+      --success: #22C55E;
+      --danger: #EF4444;
+      --warning: #F59E0B;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background:
+        radial-gradient(circle at 20% 20%, rgba(108, 99, 255, 0.07) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(0, 212, 170, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 50% 50%, rgba(108, 99, 255, 0.03) 0%, transparent 70%);
+      animation: bgShift 25s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    @keyframes bgShift {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      100% { transform: translate(-3%, -3%) rotate(1deg); }
+    }
+
+    /* Nav */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--text);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg { width: 18px; height: 18px; }
+
+    .logo span { color: var(--primary); }
+
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #06060B;
+    }
+    .btn-accent:hover { background: var(--accent-dark); transform: translateY(-1px); }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 60px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 18px;
+      background: rgba(0, 212, 170, 0.08);
+      border: 1px solid rgba(0, 212, 170, 0.2);
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--accent);
+      margin-bottom: 28px;
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    h1 {
+      font-size: 3.8rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1.08;
+      margin-bottom: 20px;
+    }
+
+    h1 .gradient {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-muted);
+      max-width: 600px;
+      margin: 0 auto 40px;
+      line-height: 1.7;
+    }
+
+    /* Search Bar */
+    .hero-search {
+      max-width: 600px;
+      margin: 0 auto 20px;
+      position: relative;
+    }
+
+    .hero-search input {
+      width: 100%;
+      padding: 18px 24px;
+      padding-right: 140px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1.05rem;
+      outline: none;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .hero-search input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.15);
+    }
+
+    .hero-search input::placeholder { color: var(--text-muted); opacity: 0.5; }
+
+    .hero-search button {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      padding: 12px 24px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .hero-search button:hover { background: var(--primary-dark); }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-top: 16px;
+    }
+
+    .hero-tags a {
+      padding: 6px 14px;
+      background: rgba(108, 99, 255, 0.06);
+      border: 1px solid rgba(108, 99, 255, 0.15);
+      border-radius: 20px;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .hero-tags a:hover {
+      background: rgba(108, 99, 255, 0.12);
+      border-color: var(--primary);
+      color: var(--primary-light);
+    }
+
+    /* Stats */
+    .stats {
+      display: flex;
+      justify-content: center;
+      gap: 60px;
+      padding: 40px 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat { text-align: center; }
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .stat-label { font-size: 0.85rem; color: var(--text-muted); margin-top: 4px; }
+
+    /* How it Works */
+    .section { padding: 60px 20px; max-width: 1100px; margin: 0 auto; }
+
+    .section-title {
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 1.05rem;
+      margin-bottom: 50px;
+      max-width: 550px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .step-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      transition: all 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .step-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--primary), var(--accent));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .step-card:hover { border-color: rgba(108, 99, 255, 0.3); transform: translateY(-4px); }
+    .step-card:hover::before { opacity: 1; }
+
+    .step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: rgba(108, 99, 255, 0.1);
+      color: var(--primary);
+      font-weight: 800;
+      font-size: 1.1rem;
+      margin-bottom: 20px;
+    }
+
+    .step-card h3 { font-size: 1.15rem; font-weight: 700; margin-bottom: 10px; }
+    .step-card p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; }
+
+    /* Categories */
+    .categories {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+
+    .category-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      text-decoration: none;
+      color: var(--text);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .category-card:hover {
+      border-color: rgba(108, 99, 255, 0.3);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(108, 99, 255, 0.1);
+    }
+
+    .category-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(108, 99, 255, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 1.3rem;
+    }
+
+    .category-card h3 { font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; }
+    .category-card p { font-size: 0.8rem; color: var(--text-muted); }
+
+    /* Comparison */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .compare-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+    }
+
+    .compare-card.highlight {
+      border-color: var(--primary);
+      box-shadow: 0 0 40px rgba(108, 99, 255, 0.12);
+    }
+
+    .compare-card h3 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .compare-price {
+      font-size: 2rem;
+      font-weight: 800;
+      margin-bottom: 20px;
+    }
+
+    .compare-price .period { font-size: 0.85rem; color: var(--text-muted); font-weight: 400; }
+
+    .compare-list { list-style: none; }
+
+    .compare-list li {
+      padding: 8px 0;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .compare-list li .check { color: var(--success); font-weight: 700; }
+    .compare-list li .cross { color: var(--danger); font-weight: 700; }
+
+    /* CTA */
+    .cta {
+      text-align: center;
+      padding: 80px 20px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .cta h2 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 16px;
+    }
+
+    .cta p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 32px;
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      h1 { font-size: 2.5rem; }
+      .steps { grid-template-columns: 1fr; }
+      .categories { grid-template-columns: repeat(2, 1fr); }
+      .comparison { grid-template-columns: 1fr; }
+      .stats { gap: 30px; flex-wrap: wrap; }
+      nav { padding: 16px 20px; }
+    }
+
+    @media (max-width: 600px) {
+      h1 { font-size: 2rem; }
+      .categories { grid-template-columns: 1fr; }
+      .hero { padding: 50px 16px 40px; }
+      .nav-links { gap: 12px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="4 18 8 12 12 15 16 8 20 10"/>
+        <circle cx="20" cy="10" r="1.5" fill="white"/>
+      </svg>
+    </div>
+    PDF <span>Trend Finder</span>
+  </a>
+  <div class="nav-links">
+    <a href="/search">Search</a>
+    {% if user_id %}
+      <a href="/saved">Saved Ideas</a>
+      <a href="/logout" class="btn btn-outline">Log Out</a>
+    {% else %}
+      <a href="/login" class="btn btn-outline">Log In</a>
+      <a href="/signup" class="btn btn-primary">Sign Up Free</a>
+    {% endif %}
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge">Live Data</div>
+  <h1>Find <span class="gradient">Trending PDF Ideas</span> People Will Actually Buy</h1>
+  <p>Stop guessing. Use real-time search data to discover problems people are desperate to solve — then create PDF guides that sell.</p>
+
+  <form class="hero-search" action="/search" method="GET">
+    <input type="text" name="q" placeholder="Enter a niche (e.g. weight loss, budgeting, AI tools...)" autocomplete="off">
+    <button type="submit">Find Ideas</button>
+  </form>
+
+  <div class="hero-tags">
+    <a href="/search?q=weight+loss">Weight Loss</a>
+    <a href="/search?q=passive+income">Passive Income</a>
+    <a href="/search?q=AI+tools">AI Tools</a>
+    <a href="/search?q=meal+prep">Meal Prep</a>
+    <a href="/search?q=productivity">Productivity</a>
+    <a href="/search?q=social+media+marketing">Social Media Marketing</a>
+  </div>
+</section>
+
+<section class="stats">
+  <div class="stat">
+    <div class="stat-value">100%</div>
+    <div class="stat-label">Free Forever</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">Real-Time</div>
+    <div class="stat-label">Google Search Data</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">40+</div>
+    <div class="stat-label">Ideas Per Search</div>
+  </div>
+  <div class="stat">
+    <div class="stat-value">8</div>
+    <div class="stat-label">Niche Categories</div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">How It Works</h2>
+  <p class="section-subtitle">Three simple steps from idea to sellable PDF guide</p>
+
+  <div class="steps">
+    <div class="step-card">
+      <div class="step-num">1</div>
+      <h3>Search Any Niche</h3>
+      <p>Enter a topic or browse categories. We pull real-time data from Google to show you exactly what people are searching for right now.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">2</div>
+      <h3>Discover Trending Questions</h3>
+      <p>See related queries, rising trends, and question-based searches. Each one is a potential PDF guide that solves a real problem.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-num">3</div>
+      <h3>Save & Create Your Guide</h3>
+      <p>Bookmark your best ideas, see interest-over-time data, and get AI-powered title suggestions. Then create and sell your PDF.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Browse by Category</h2>
+  <p class="section-subtitle">Jump into a niche and start finding ideas instantly</p>
+
+  <div class="categories">
+    {% for cat in categories %}
+    <a href="/search?q={{ cat.queries[0] | urlencode }}" class="category-card">
+      <div class="category-icon">
+        {% if cat.id == "health" %}&#x1F4AA;{% endif %}
+        {% if cat.id == "finance" %}&#x1F4B0;{% endif %}
+        {% if cat.id == "tech" %}&#x1F4BB;{% endif %}
+        {% if cat.id == "business" %}&#x1F4C8;{% endif %}
+        {% if cat.id == "education" %}&#x1F4DA;{% endif %}
+        {% if cat.id == "lifestyle" %}&#x2728;{% endif %}
+        {% if cat.id == "parenting" %}&#x1F476;{% endif %}
+        {% if cat.id == "creative" %}&#x1F3A8;{% endif %}
+      </div>
+      <h3>{{ cat.name }}</h3>
+      <p>{{ cat.queries | length }} trending topics</p>
+    </a>
+    {% endfor %}
+  </div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Why Choose Us Over the Competition?</h2>
+  <p class="section-subtitle">We do what others charge $197 for — completely free</p>
+
+  <div class="comparison">
+    <div class="compare-card">
+      <h3>Other Tools</h3>
+      <div class="compare-price">$197 <span class="period">one-time</span></div>
+      <ul class="compare-list">
+        <li><span class="check">+</span> Trending search data</li>
+        <li><span class="cross">-</span> Basic Shopify UI</li>
+        <li><span class="cross">-</span> No interest-over-time charts</li>
+        <li><span class="cross">-</span> No related queries</li>
+        <li><span class="cross">-</span> No saved ideas</li>
+        <li><span class="cross">-</span> No question-based suggestions</li>
+        <li><span class="cross">-</span> No category browsing</li>
+      </ul>
+    </div>
+    <div class="compare-card highlight">
+      <h3>PDF Trend Finder</h3>
+      <div class="compare-price" style="color: var(--accent)">Free <span class="period">forever</span></div>
+      <ul class="compare-list">
+        <li><span class="check">+</span> Real-time Google Trends data</li>
+        <li><span class="check">+</span> Beautiful modern interface</li>
+        <li><span class="check">+</span> Interest-over-time charts</li>
+        <li><span class="check">+</span> Related & rising queries</li>
+        <li><span class="check">+</span> Save & organize ideas</li>
+        <li><span class="check">+</span> 40+ question-based suggestions</li>
+        <li><span class="check">+</span> 8 curated niche categories</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <h2>Start Finding Profitable PDF Ideas — <span style="color: var(--accent)">Free</span></h2>
+  <p>No credit card. No hidden fees. Just real-time data to help you build a PDF business.</p>
+  <a href="/search" class="btn btn-accent" style="padding: 16px 40px; font-size: 1.1rem;">Start Searching Now</a>
+</section>
+
+<footer>
+  &copy; 2025 PDF Trend Finder. Built with real-time Google search data.
+</footer>
+
+</body>
+</html>
