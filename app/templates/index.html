@@ -4,6 +4,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SimplyPDF — Instant file hosting, zero sign-up</title>
+  <meta name="description" content="Host and share files instantly. Upload HTML, PDFs, images — get a shareable link in seconds. No sign-up required. Free analytics, QR codes, and password protection.">
+  <meta property="og:title" content="SimplyPDF — Instant file hosting, zero sign-up">
+  <meta property="og:description" content="Drag, drop, and get a shareable link instantly. HTML sites, PDFs, images — all with analytics, QR codes, and password protection.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://simplypdf.io">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="SimplyPDF — Instant file hosting">
+  <meta name="twitter:description" content="Host and share files instantly. No sign-up required.">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
@@ -754,7 +763,21 @@
       .features-grid { grid-template-columns: 1fr; }
       .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
       nav { padding: 16px 20px; }
+      .nav-links { gap: 16px; }
+      .nav-links a { font-size: 0.8rem; }
       .hero { padding: 40px 20px 20px; }
+      .upload-card { padding: 20px; }
+      .dropzone { padding: 32px 16px; }
+      table { font-size: 0.8rem; }
+      footer { padding: 30px 20px; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.8rem; }
+      .hero p { font-size: 1rem; }
+      .nav-links { gap: 10px; }
+      .nav-links a { font-size: 0.75rem; }
+      .badge { font-size: 0.7rem; }
     }
   </style>
 </head>
@@ -765,7 +788,13 @@
   <div class="nav-links">
     <a href="#features">Features</a>
     <a href="#pricing">Pricing</a>
-    <a href="#compare">Compare</a>
+    {% if user_id %}
+    <a href="/my-sites">My Sites</a>
+    <a href="/logout">Log Out</a>
+    {% else %}
+    <a href="/login">Log In</a>
+    <a href="/signup">Sign Up</a>
+    {% endif %}
   </div>
 </nav>
 
@@ -792,6 +821,12 @@
       <span class="file-name" id="fileName"></span>
       <span class="file-size" id="fileSize"></span>
       <button class="remove-file" id="removeFile" title="Remove file">&times;</button>
+    </div>
+
+    <div class="file-preview" id="filePreview" style="display:none; margin: 12px 0; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); text-align: center; max-height: 200px; overflow: hidden;">
+      <img id="previewImg" style="max-width:100%; max-height:180px; border-radius:8px; display:none;">
+      <div id="previewText" style="text-align:left; font-family:monospace; font-size:0.8rem; color:var(--text-muted); white-space:pre-wrap; max-height:180px; overflow:auto; display:none;"></div>
+      <div id="previewIcon" style="display:none; padding: 20px; color: var(--text-muted); font-size: 0.9rem;"></div>
     </div>
 
     <div class="options">
@@ -1001,6 +1036,7 @@
 
 <footer>
   <p>SimplyPDF — Instant file hosting. Built to be better.</p>
+  <p style="margin-top: 12px; font-size: 0.8rem;"><a href="/terms" style="color: var(--text-muted); text-decoration: none;">Terms</a> &middot; <a href="/privacy" style="color: var(--text-muted); text-decoration: none;">Privacy</a> &middot; <a href="/contact" style="color: var(--text-muted); text-decoration: none;">Contact</a></p>
 </footer>
 
 <script>
@@ -1028,6 +1064,45 @@
     return (bytes / 1048576).toFixed(1) + ' MB';
   }
 
+  const filePreview = document.getElementById('filePreview');
+  const previewImg = document.getElementById('previewImg');
+  const previewText = document.getElementById('previewText');
+  const previewIcon = document.getElementById('previewIcon');
+
+  function showPreview(file) {
+    previewImg.style.display = 'none';
+    previewText.style.display = 'none';
+    previewIcon.style.display = 'none';
+    filePreview.style.display = 'none';
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    const imageExts = ['png','jpg','jpeg','gif','svg','webp','bmp'];
+    const textExts = ['html','htm','css','js','json','xml','txt','md','csv'];
+
+    if (imageExts.includes(ext)) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        previewImg.style.display = 'block';
+        filePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else if (textExts.includes(ext) && file.size < 50000) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewText.textContent = e.target.result.slice(0, 2000);
+        previewText.style.display = 'block';
+        filePreview.style.display = 'block';
+      };
+      reader.readAsText(file);
+    } else {
+      const icons = {pdf:'PDF Document', zip:'ZIP Archive', doc:'Word Document', docx:'Word Document', ppt:'Presentation', pptx:'Presentation', xls:'Spreadsheet', xlsx:'Spreadsheet'};
+      previewIcon.textContent = icons[ext] || file.type || 'File ready to upload';
+      previewIcon.style.display = 'block';
+      filePreview.style.display = 'block';
+    }
+  }
+
   function setFile(file) {
     if (!file) return;
     if (file.size > 100 * 1024 * 1024) {
@@ -1039,6 +1114,7 @@
     fileSize.textContent = formatSize(file.size);
     fileSelected.classList.add('show');
     uploadBtn.disabled = false;
+    showPreview(file);
   }
 
   function clearFile() {
@@ -1046,6 +1122,7 @@
     fileInput.value = '';
     fileSelected.classList.remove('show');
     uploadBtn.disabled = true;
+    filePreview.style.display = 'none';
   }
 
   dropzone.addEventListener('click', () => fileInput.click());

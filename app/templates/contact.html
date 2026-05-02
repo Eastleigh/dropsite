@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact | SimplyPDF</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #6C63FF;
+      --primary-dark: #5A52E0;
+      --bg: #0A0A0F;
+      --bg-card: #12121A;
+      --text: #EEEEF0;
+      --text-muted: #8888A0;
+      --border: #2A2A3A;
+      --success: #22C55E;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; max-width: 1200px; margin: 0 auto; }
+    .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
+    .logo span { color: var(--text); }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; }
+    .nav-links a:hover { color: var(--text); }
+    .container { max-width: 560px; margin: 0 auto; padding: 40px 20px 80px; }
+    h1 { font-size: 1.8rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -0.5px; }
+    .subtitle { color: var(--text-muted); margin-bottom: 32px; }
+    .card {
+      background: var(--bg-card); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 32px;
+    }
+    label { display: block; font-size: 0.85rem; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; }
+    input, textarea {
+      width: 100%; padding: 12px 16px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-family: inherit; font-size: 0.95rem;
+      outline: none; margin-bottom: 16px;
+    }
+    textarea { min-height: 120px; resize: vertical; }
+    input:focus, textarea:focus { border-color: var(--primary); }
+    button {
+      width: 100%; padding: 12px;
+      background: var(--primary); color: white; border: none;
+      border-radius: var(--radius-sm); font-family: inherit;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: var(--primary-dark); }
+    .success {
+      text-align: center; padding: 40px;
+    }
+    .success-icon { font-size: 3rem; margin-bottom: 16px; }
+    .success h2 { font-size: 1.3rem; margin-bottom: 8px; }
+    .success p { color: var(--text-muted); margin-bottom: 24px; }
+    .success a { color: var(--primary); text-decoration: none; font-weight: 600; }
+    .error { color: #EF4444; font-size: 0.85rem; margin-bottom: 16px; background: rgba(239,68,68,0.1); padding: 10px; border-radius: var(--radius-sm); }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Simply<span>PDF</span></a>
+  <div class="nav-links">
+    {% if user_id %}
+    <a href="/my-sites">My Sites</a>
+    <a href="/logout">Log Out</a>
+    {% else %}
+    <a href="/login">Log In</a>
+    <a href="/signup">Sign Up</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="container">
+  <h1>Contact Us</h1>
+  <p class="subtitle">Have a question or feedback? We'd love to hear from you.</p>
+
+  <div class="card">
+    {% if sent %}
+    <div class="success">
+      <div class="success-icon">&#x2709;</div>
+      <h2>Message sent!</h2>
+      <p>We'll get back to you as soon as possible.</p>
+      <a href="/">Back to homepage</a>
+    </div>
+    {% else %}
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+    <form method="POST" action="/api/contact">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" placeholder="Your name" required>
+      <label for="email">Email</label>
+      <input type="email" id="email" name="email" placeholder="you@example.com" required>
+      <label for="message">Message</label>
+      <textarea id="message" name="message" placeholder="How can we help?" required></textarea>
+      <button type="submit">Send Message</button>
+    </form>
+    {% endif %}
+  </div>
+</div>
+
+</body>
+</html>

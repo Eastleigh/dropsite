@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% if mode == 'login' %}Log In{% else %}Sign Up{% endif %} | SimplyPDF</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #6C63FF;
+      --primary-dark: #5A52E0;
+      --bg: #0A0A0F;
+      --bg-card: #12121A;
+      --text: #EEEEF0;
+      --text-muted: #8888A0;
+      --border: #2A2A3A;
+      --danger: #EF4444;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 40px;
+      max-width: 420px;
+      width: 90%;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .logo span { color: var(--text); }
+    h1 { font-size: 1.4rem; font-weight: 700; margin-bottom: 8px; text-align: center; }
+    .subtitle { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; text-align: center; }
+    .error { color: var(--danger); font-size: 0.85rem; margin-bottom: 16px; text-align: center; background: rgba(239,68,68,0.1); padding: 10px; border-radius: var(--radius-sm); }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+    input[type="email"], input[type="password"] {
+      width: 100%; padding: 12px 16px;
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius-sm); color: var(--text);
+      font-family: inherit; font-size: 0.95rem;
+      outline: none; margin-bottom: 16px;
+    }
+    input:focus { border-color: var(--primary); }
+    button {
+      width: 100%; padding: 12px;
+      background: var(--primary); color: white; border: none;
+      border-radius: var(--radius-sm); font-family: inherit;
+      font-size: 0.95rem; font-weight: 600; cursor: pointer;
+      transition: background 0.2s;
+    }
+    button:hover { background: var(--primary-dark); }
+    .switch {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+    .switch a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .switch a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <a href="/" class="logo">Simply<span>PDF</span></a>
+    {% if mode == 'login' %}
+    <h1>Welcome back</h1>
+    <p class="subtitle">Log in to manage your sites</p>
+    {% else %}
+    <h1>Create an account</h1>
+    <p class="subtitle">Sign up to manage and track your hosted files</p>
+    {% endif %}
+
+    {% if error %}
+    <div class="error">{{ error }}</div>
+    {% endif %}
+
+    <form method="POST" action="/api/{{ mode }}">
+      <label for="email">Email address</label>
+      <input type="email" id="email" name="email" placeholder="you@example.com" required autofocus>
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="{% if mode == 'signup' %}Min 6 characters{% else %}Enter password{% endif %}" required {% if mode == 'signup' %}minlength="6"{% endif %}>
+      <button type="submit">{% if mode == 'login' %}Log In{% else %}Create Account{% endif %}</button>
+    </form>
+
+    <div class="switch">
+      {% if mode == 'login' %}
+        Don't have an account? <a href="/signup">Sign up</a>
+      {% else %}
+        Already have an account? <a href="/login">Log in</a>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
