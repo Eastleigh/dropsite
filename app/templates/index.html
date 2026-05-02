@@ -1162,20 +1162,20 @@
   function handleCheckout(plan) {
     const billing = isYearly ? 'yearly' : 'monthly';
     const prices = {
-      'pro-monthly': null,   // Replace with your Stripe Price IDs
-      'pro-yearly': null,
-      'business-monthly': null,
-      'business-yearly': null,
+      'pro-monthly': 'price_1TSZ2gB9EIpVz3DU5iGjDkP2',
+      'pro-yearly': 'price_1TSZ8VB9EIpVz3DUrTZjGpCq',
+      'business-monthly': 'price_1TSZ4GB9EIpVz3DUwxwvJYrG',
+      'business-yearly': 'price_1TSZ9KB9EIpVz3DUNOjnTIjE',
     };
     const priceKey = plan + '-' + billing;
     const priceId = prices[priceKey];
 
     if (!priceId) {
-      alert('Payment coming soon! For now, enjoy the free tier. Contact us for early access to paid plans.');
+      alert('Invalid plan selected.');
       return;
     }
 
-    // When Stripe is configured, this will redirect to checkout:
+
     fetch('/api/checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
