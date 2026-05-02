@@ -278,7 +278,7 @@ async def serve_site(request: Request, slug: str, path: str = "") -> Response:
         if not site:
             raise HTTPException(status_code=404, detail="Site not found")
 
-        if site["password_hash"] and not path:
+        if site["password_hash"]:
             return templates.TemplateResponse(
                 request,
                 "password.html",
@@ -319,15 +319,16 @@ async def _serve_site_files(slug: str, path: str) -> Response:
             mime = mimetypes.guess_type(files[0].name)[0] or "application/octet-stream"
             return FileResponse(str(files[0]), media_type=mime)
         # Show directory listing
+        from html import escape
         file_list = [f.name for f in files if f.is_file()]
         html = "<html><body><h2>Files</h2><ul>"
         for f in file_list:
-            html += f'<li><a href="/s/{slug}/{f}">{f}</a></li>'
+            html += f'<li><a href="/s/{escape(slug)}/{escape(f)}">{escape(f)}</a></li>'
         html += "</ul></body></html>"
         return HTMLResponse(html)
 
     file_path = (site_dir / path).resolve()
-    if not str(file_path).startswith(str(site_dir.resolve())):
+    if not str(file_path).startswith(str(site_dir.resolve()) + os.sep):
         raise HTTPException(status_code=403, detail="Access denied")
 
     if not file_path.exists():

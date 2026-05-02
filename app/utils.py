@@ -75,7 +75,7 @@ def extract_upload(file_bytes: bytes, filename: str, slug: str) -> Path:
         if ext in (".html", ".htm"):
             dest = site_dir / "index.html"
         else:
-            dest = site_dir / filename
+            dest = site_dir / Path(filename).name
         dest.write_bytes(file_bytes)
 
     return site_dir
