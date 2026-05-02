@@ -29,7 +29,7 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     yield
 
 
-app = FastAPI(title="DropSite", version="1.0.0", lifespan=lifespan)
+app = FastAPI(title="SimplyPDF", version="1.0.0", lifespan=lifespan)
 
 BASE_DIR = Path(__file__).parent
 _static_dir = BASE_DIR / "static"
