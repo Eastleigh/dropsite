@@ -1258,8 +1258,15 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ price_id: priceId })
     })
-    .then(r => r.json())
-    .then(data => window.location.href = data.checkout_url);
+    .then(r => r.json().then(data => ({ ok: r.ok, data })))
+    .then(({ ok, data }) => {
+      if (!ok || !data.checkout_url) {
+        alert(data.detail || 'Checkout is not available right now. Please try again later.');
+        return;
+      }
+      window.location.href = data.checkout_url;
+    })
+    .catch(() => alert('Something went wrong. Please try again.'));
   }
 </script>
 
