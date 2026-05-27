@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard — {{ site.slug }} | SimplyPDF</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #6C63FF;
+      --primary-light: #8B85FF;
+      --bg: #0A0A0F;
+      --bg-card: #12121A;
+      --text: #EEEEF0;
+      --text-muted: #8888A0;
+      --border: #2A2A3A;
+      --success: #22C55E;
+      --danger: #EF4444;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .logo span { color: var(--text); }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 20px 40px 80px;
+    }
+
+    .page-header {
+      margin-bottom: 32px;
+    }
+
+    .page-header h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+
+    .site-url {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+    }
+
+    .site-url a {
+      color: var(--primary-light);
+      text-decoration: none;
+      font-family: monospace;
+      font-size: 0.9rem;
+    }
+
+    .site-url button {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.8rem;
+      padding: 2px 8px;
+      border-radius: 4px;
+      transition: all 0.2s;
+    }
+
+    .site-url button:hover { background: rgba(108, 99, 255, 0.1); color: var(--primary-light); }
+
+    .meta {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .stat-card .label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .stat-card .value.primary { color: var(--primary); }
+
+    .section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+
+    .section h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 20px;
+    }
+
+    .chart-container {
+      width: 100%;
+      height: 200px;
+      position: relative;
+    }
+
+    .chart-bar-container {
+      display: flex;
+      align-items: flex-end;
+      gap: 4px;
+      height: 160px;
+      padding-top: 10px;
+    }
+
+    .chart-bar-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+    }
+
+    .chart-bar {
+      width: 100%;
+      max-width: 40px;
+      background: var(--primary);
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height 0.3s;
+      flex-shrink: 0;
+    }
+
+    .chart-bar-wrapper .bar-area {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .chart-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+    }
+
+    .referer-list { list-style: none; }
+    .referer-list li {
+      display: flex;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.9rem;
+    }
+    .referer-list li:last-child { border-bottom: none; }
+    .referer-list .ref-url { color: var(--text-muted); max-width: 70%; overflow: hidden; text-overflow: ellipsis; }
+    .referer-list .ref-count { color: var(--primary-light); font-weight: 600; }
+
+    .qr-section {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .qr-section img {
+      width: 150px;
+      height: 150px;
+      border-radius: var(--radius-sm);
+      background: white;
+      padding: 8px;
+    }
+
+    .qr-info h3 { font-size: 1rem; margin-bottom: 8px; }
+    .qr-info p { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px; }
+
+    .download-btn {
+      display: inline-block;
+      padding: 8px 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s;
+    }
+
+    .download-btn:hover { background: #5A52E0; }
+
+    .danger-zone {
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .delete-btn {
+      padding: 8px 20px;
+      background: transparent;
+      color: var(--danger);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .delete-btn:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .empty { color: var(--text-muted); font-size: 0.9rem; font-style: italic; }
+
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: 1fr; }
+      .qr-section { flex-direction: column; text-align: center; }
+      .container { padding: 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Simply<span>PDF</span></a>
+  <div style="display:flex;gap:24px;align-items:center;">
+    {% if user_id %}
+    <a href="/my-sites" style="color:var(--text-muted);text-decoration:none;font-size:0.9rem;">My Sites</a>
+    <a href="/logout" style="color:var(--text-muted);text-decoration:none;font-size:0.9rem;">Log Out</a>
+    {% else %}
+    <a href="/login" style="color:var(--text-muted);text-decoration:none;font-size:0.9rem;">Log In</a>
+    {% endif %}
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <h1>📊 Dashboard</h1>
+    <div class="site-url">
+      <a href="{{ site_url }}" target="_blank">{{ site_url }}</a>
+      <button onclick="navigator.clipboard.writeText('{{ site_url }}'); this.textContent='Copied!'; setTimeout(()=>this.textContent='Copy',1500)">Copy</button>
+    </div>
+    <div class="meta">
+      <strong>{{ site.original_filename }}</strong> · Created {{ site.created_at }}
+      {% if site.password_hash %} · 🔒 Password protected{% endif %}
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="label">Total Views</div>
+      <div class="value primary">{{ total_views }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">File</div>
+      <div class="value" style="font-size:1.1rem; word-break:break-all;">{{ site.original_filename }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="label">Link Name</div>
+      <div class="value" style="font-size:1.1rem;">{{ site.slug }}</div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>📈 Views (Last 30 Days)</h2>
+    {% if daily_views %}
+    <div class="chart-container">
+      <div class="chart-bar-container">
+        {% set max_views = daily_views|map(attribute='cnt')|max %}
+        {% for day in daily_views|reverse %}
+        <div class="chart-bar-wrapper">
+          <div class="bar-area">
+            <div class="chart-bar" style="height: {{ (day.cnt / max_views * 140)|int if max_views else 4 }}px;"></div>
+          </div>
+          <span class="chart-label">{{ day.day[5:] }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% else %}
+    <p class="empty">No views yet. Share your link to start tracking!</p>
+    {% endif %}
+  </div>
+
+  <div class="section">
+    <h2>🔗 Top Referrers</h2>
+    {% if top_referers %}
+    <ul class="referer-list">
+      {% for ref in top_referers %}
+      <li>
+        <span class="ref-url">{{ ref.referer }}</span>
+        <span class="ref-count">{{ ref.cnt }} views</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">No referrer data yet.</p>
+    {% endif %}
+  </div>
+
+  <div class="section">
+    <h2>📱 QR Code</h2>
+    <div class="qr-section">
+      <img src="/api/qr/{{ site.slug }}" alt="QR Code for {{ site.slug }}">
+      <div class="qr-info">
+        <h3>Share with a QR code</h3>
+        <p>Scan this code to visit your hosted site. Perfect for business cards, flyers, and presentations.</p>
+        <a href="/api/qr/{{ site.slug }}" download="qr-{{ site.slug }}.png" class="download-btn">Download QR Code</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section danger-zone">
+    <h2>⚠️ Danger Zone</h2>
+    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:16px;">Permanently delete this site and all its data. This cannot be undone.</p>
+    <button class="delete-btn" onclick="deleteSite()">Delete Site</button>
+  </div>
+</div>
+
+<script>
+  async function deleteSite() {
+    if (!confirm('Are you sure you want to permanently delete this site? This cannot be undone.')) return;
+    try {
+      const res = await fetch('/api/site/{{ site.slug }}', { method: 'DELETE' });
+      if (res.ok) {
+        alert('Site deleted.');
+        window.location.href = '/';
+      } else {
+        alert('Failed to delete site.');
+      }
+    } catch(e) {
+      alert('Error: ' + e.message);
+    }
+  }
+</script>
+
+</body>
+</html>

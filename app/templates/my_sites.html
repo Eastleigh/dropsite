@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Sites | SimplyPDF</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #6C63FF;
+      --primary-dark: #5A52E0;
+      --primary-light: #8B85FF;
+      --bg: #0A0A0F;
+      --bg-card: #12121A;
+      --bg-card-hover: #1A1A25;
+      --text: #EEEEF0;
+      --text-muted: #8888A0;
+      --border: #2A2A3A;
+      --success: #22C55E;
+      --danger: #EF4444;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; min-height: 100vh; }
+    nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 40px; max-width: 1200px; margin: 0 auto; }
+    .logo { font-size: 1.5rem; font-weight: 800; color: var(--primary); text-decoration: none; }
+    .logo span { color: var(--text); }
+    .nav-links { display: flex; gap: 24px; align-items: center; }
+    .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+    .nav-links a:hover { color: var(--text); }
+    .container { max-width: 1000px; margin: 0 auto; padding: 20px 40px 80px; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 32px; flex-wrap: wrap; gap: 16px; }
+    .page-header h1 { font-size: 1.8rem; font-weight: 700; letter-spacing: -0.5px; }
+    .plan-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: 50px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase;
+    }
+    .plan-badge.free { background: rgba(136,136,160,0.15); color: var(--text-muted); }
+    .plan-badge.pro { background: rgba(108,99,255,0.15); color: var(--primary-light); }
+    .plan-badge.business { background: rgba(34,197,94,0.15); color: var(--success); }
+    .usage { font-size: 0.85rem; color: var(--text-muted); margin-bottom: 24px; }
+    .usage strong { color: var(--text); }
+    .sites-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; }
+    .site-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 24px; transition: border-color 0.2s;
+    }
+    .site-card:hover { border-color: rgba(108,99,255,0.3); }
+    .site-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+    .site-card h3 a { color: var(--primary-light); text-decoration: none; }
+    .site-card h3 a:hover { text-decoration: underline; }
+    .site-meta { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 12px; }
+    .site-stats { display: flex; gap: 16px; margin-bottom: 16px; }
+    .site-stat { font-size: 0.85rem; }
+    .site-stat .val { font-weight: 700; color: var(--text); }
+    .site-stat .lbl { color: var(--text-muted); }
+    .site-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .site-actions a, .site-actions button {
+      padding: 6px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 500;
+      text-decoration: none; cursor: pointer; border: 1px solid var(--border);
+      background: transparent; color: var(--text-muted); transition: all 0.2s; font-family: inherit;
+    }
+    .site-actions a:hover, .site-actions button:hover { border-color: var(--primary); color: var(--primary-light); }
+    .site-actions .delete-btn:hover { border-color: var(--danger); color: var(--danger); }
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-state h2 { font-size: 1.3rem; margin-bottom: 8px; }
+    .empty-state p { color: var(--text-muted); margin-bottom: 24px; }
+    .empty-state a {
+      display: inline-block; padding: 12px 24px; background: var(--primary);
+      color: white; border-radius: var(--radius-sm); text-decoration: none;
+      font-weight: 600; transition: background 0.2s;
+    }
+    .empty-state a:hover { background: var(--primary-dark); }
+    .upload-btn-top {
+      padding: 10px 20px; background: var(--primary); color: white;
+      border: none; border-radius: var(--radius-sm); font-family: inherit;
+      font-size: 0.9rem; font-weight: 600; cursor: pointer; text-decoration: none;
+      transition: background 0.2s;
+    }
+    .upload-btn-top:hover { background: var(--primary-dark); }
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .container { padding: 20px 20px 60px; }
+      .sites-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Simply<span>PDF</span></a>
+  <div class="nav-links">
+    <a href="/my-sites">My Sites</a>
+    <a href="/logout">Log Out</a>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-header">
+    <div>
+      <h1>My Sites</h1>
+      <span class="plan-badge {{ plan }}">{{ plan }} plan</span>
+    </div>
+    <a href="/" class="upload-btn-top">+ Upload New</a>
+  </div>
+
+  <div class="usage">
+    <strong>{{ sites|length }}</strong> / {{ limits.max_sites }} sites used &middot;
+    Max upload: <strong>{{ limits.max_upload_label }}</strong>
+    {% if plan == 'free' %} &middot; Free sites expire after 7 days. <a href="/#pricing" style="color:var(--primary)">Upgrade</a>{% endif %}
+  </div>
+
+  {% if sites %}
+  <div class="sites-grid">
+    {% for site in sites %}
+    <div class="site-card" id="site-{{ site.slug }}">
+      <h3><a href="/s/{{ site.slug }}" target="_blank">/s/{{ site.slug }}</a></h3>
+      <div class="site-meta">
+        {{ site.original_filename }} &middot; Uploaded {{ site.created_at[:10] }}
+        {% if site.expires_at %} &middot; Expires {{ site.expires_at[:10] }}{% endif %}
+      </div>
+      <div class="site-stats">
+        <div class="site-stat"><span class="val">{{ site.views }}</span> <span class="lbl">views</span></div>
+      </div>
+      <div class="site-actions">
+        <a href="/dashboard/{{ site.slug }}">Analytics</a>
+        <a href="/api/qr/{{ site.slug }}" target="_blank">QR Code</a>
+        <button class="delete-btn" onclick="deleteSite('{{ site.slug }}')">Delete</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h2>No sites yet</h2>
+    <p>Upload your first file to get started.</p>
+    <a href="/">Upload a File</a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+async function deleteSite(slug) {
+  if (!confirm('Are you sure you want to delete /s/' + slug + '? This cannot be undone.')) return;
+  const res = await fetch('/api/site/' + slug, { method: 'DELETE' });
+  if (res.ok) {
+    document.getElementById('site-' + slug).remove();
+  } else {
+    const err = await res.json();
+    alert(err.detail || 'Failed to delete');
+  }
+}
+</script>
+
+</body>
+</html>

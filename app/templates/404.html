@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Not Found | SimplyPDF</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --primary: #6C63FF;
+      --primary-dark: #5A52E0;
+      --bg: #0A0A0F;
+      --bg-card: #12121A;
+      --text: #EEEEF0;
+      --text-muted: #8888A0;
+      --border: #2A2A3A;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg); color: var(--text);
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; text-align: center;
+    }
+    .container { max-width: 480px; padding: 40px 20px; }
+    .code { font-size: 6rem; font-weight: 800; color: var(--primary); line-height: 1; margin-bottom: 16px; letter-spacing: -3px; }
+    h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: 12px; }
+    p { color: var(--text-muted); margin-bottom: 32px; font-size: 1rem; }
+    a {
+      display: inline-block; padding: 12px 28px;
+      background: var(--primary); color: white;
+      border-radius: var(--radius-sm); text-decoration: none;
+      font-weight: 600; font-size: 0.95rem;
+      transition: background 0.2s;
+    }
+    a:hover { background: var(--primary-dark); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="code">404</div>
+    <h1>Page not found</h1>
+    <p>The page you're looking for doesn't exist or has been removed.</p>
+    <a href="/">Go to Homepage</a>
+  </div>
+</body>
+</html>

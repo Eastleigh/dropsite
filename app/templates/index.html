@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SimplyPDF — Instant file hosting, zero sign-up</title>
+  <meta name="description" content="Host and share files instantly. Upload HTML, PDFs, images — get a shareable link in seconds. No sign-up required. Free analytics, QR codes, and password protection.">
+  <meta property="og:title" content="SimplyPDF — Instant file hosting, zero sign-up">
+  <meta property="og:description" content="Drag, drop, and get a shareable link instantly. HTML sites, PDFs, images — all with analytics, QR codes, and password protection.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://simplypdf.io">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="SimplyPDF — Instant file hosting">
+  <meta name="twitter:description" content="Host and share files instantly. No sign-up required.">
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --primary: #6C63FF;
+      --primary-dark: #5A52E0;
+      --primary-light: #8B85FF;
+      --bg: #0A0A0F;
+      --bg-card: #12121A;
+      --bg-card-hover: #1A1A25;
+      --text: #EEEEF0;
+      --text-muted: #8888A0;
+      --border: #2A2A3A;
+      --success: #22C55E;
+      --danger: #EF4444;
+      --radius: 16px;
+      --radius-sm: 10px;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated gradient background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at 30% 20%, rgba(108, 99, 255, 0.08) 0%, transparent 50%),
+                  radial-gradient(circle at 70% 80%, rgba(139, 133, 255, 0.05) 0%, transparent 50%);
+      animation: bgShift 20s ease-in-out infinite alternate;
+      z-index: -1;
+    }
+
+    @keyframes bgShift {
+      0% { transform: translate(0, 0); }
+      100% { transform: translate(-5%, -5%); }
+    }
+
+    /* Nav */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--primary);
+      text-decoration: none;
+      letter-spacing: -0.5px;
+    }
+
+    .logo span { color: var(--text); }
+
+    .nav-links { display: flex; gap: 32px; align-items: center; }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 60px 20px 40px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      background: rgba(108, 99, 255, 0.12);
+      border: 1px solid rgba(108, 99, 255, 0.25);
+      border-radius: 50px;
+      font-size: 0.8rem;
+      color: var(--primary-light);
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      letter-spacing: -1.5px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--text) 0%, var(--text-muted) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      color: var(--text-muted);
+      max-width: 540px;
+      margin: 0 auto 40px;
+    }
+
+    /* Upload Section */
+    .upload-section {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .upload-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      position: relative;
+      transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .upload-card:hover {
+      border-color: rgba(108, 99, 255, 0.3);
+    }
+
+    .dropzone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+      background: rgba(108, 99, 255, 0.02);
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--primary);
+      background: rgba(108, 99, 255, 0.06);
+    }
+
+    .dropzone-icon {
+      width: 56px;
+      height: 56px;
+      margin: 0 auto 16px;
+      border-radius: 14px;
+      background: rgba(108, 99, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .dropzone-icon svg {
+      width: 28px;
+      height: 28px;
+      color: var(--primary);
+    }
+
+    .dropzone h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .dropzone p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .file-selected {
+      display: none;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      background: rgba(34, 197, 94, 0.08);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: var(--radius-sm);
+      margin-top: 16px;
+    }
+
+    .file-selected.show { display: flex; }
+
+    .file-selected .file-name {
+      flex: 1;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--success);
+    }
+
+    .file-selected .file-size {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .file-selected .remove-file {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 1.2rem;
+      padding: 4px;
+    }
+
+    /* Options */
+    .options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .input-group { position: relative; }
+
+    .input-group label {
+      display: block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.9rem;
+      transition: border-color 0.2s;
+      outline: none;
+    }
+
+    .input-group input:focus {
+      border-color: var(--primary);
+    }
+
+    .input-group input::placeholder { color: var(--text-muted); opacity: 0.6; }
+
+    .input-suffix {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    /* Upload button */
+    .upload-btn {
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-btn:hover:not(:disabled) {
+      background: var(--primary-dark);
+      transform: translateY(-1px);
+    }
+
+    .upload-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .upload-btn .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+    }
+
+    .upload-btn.loading .btn-text { display: none; }
+    .upload-btn.loading .spinner { display: inline-block; }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Progress bar */
+    .progress-bar {
+      display: none;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 16px;
+      overflow: hidden;
+    }
+
+    .progress-bar.show { display: block; }
+
+    .progress-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 2px;
+      width: 0%;
+      transition: width 0.3s;
+    }
+
+    /* Result card */
+    .result {
+      display: none;
+      margin-top: 20px;
+      padding: 24px;
+      background: rgba(34, 197, 94, 0.06);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      border-radius: var(--radius-sm);
+      animation: fadeIn 0.4s ease;
+    }
+
+    .result.show { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result h3 {
+      font-size: 1rem;
+      color: var(--success);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .result-url {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .result-url input {
+      flex: 1;
+      padding: 10px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: 'Inter', monospace;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    .copy-btn, .link-btn {
+      padding: 10px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .copy-btn:hover, .link-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--primary);
+    }
+
+    .result-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .result-actions a {
+      color: var(--primary-light);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      padding: 6px 12px;
+      border-radius: 6px;
+      background: rgba(108, 99, 255, 0.08);
+      transition: background 0.2s;
+    }
+
+    .result-actions a:hover { background: rgba(108, 99, 255, 0.15); }
+
+    /* Features */
+    .features {
+      max-width: 1100px;
+      margin: 80px auto 0;
+      padding: 0 20px 80px;
+    }
+
+    .features h2 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .features > p {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 48px;
+      font-size: 1.05rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(108, 99, 255, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .feature-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(108, 99, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 1.3rem;
+    }
+
+    .feature-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* Pricing */
+    .pricing {
+      max-width: 1100px;
+      margin: 0 auto 80px;
+      padding: 0 20px;
+    }
+
+    .pricing h2 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      letter-spacing: -0.5px;
+    }
+
+    .pricing > p {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-size: 1.05rem;
+    }
+
+    .billing-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 40px;
+    }
+
+    .billing-toggle span {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .billing-toggle span.active { color: var(--text); }
+
+    .toggle-switch {
+      width: 48px;
+      height: 26px;
+      background: var(--border);
+      border-radius: 13px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.3s;
+    }
+
+    .toggle-switch.active { background: var(--primary); }
+
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: white;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.3s;
+    }
+
+    .toggle-switch.active::after { transform: translateX(22px); }
+
+    .save-badge {
+      font-size: 0.75rem;
+      padding: 3px 10px;
+      background: rgba(34, 197, 94, 0.15);
+      color: var(--success);
+      border-radius: 20px;
+      font-weight: 600;
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .price-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      position: relative;
+      transition: border-color 0.3s, transform 0.2s;
+    }
+
+    .price-card:hover {
+      transform: translateY(-2px);
+    }
+
+    .price-card.popular {
+      border-color: var(--primary);
+      box-shadow: 0 0 30px rgba(108, 99, 255, 0.15);
+    }
+
+    .popular-badge {
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 4px 16px;
+      background: var(--primary);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 600;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .price-card .plan-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .price-card .plan-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .price-card .price {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .price-card .price .amount {
+      font-size: 2.5rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .price-card .price .period {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .price-card .billed {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    .price-card .plan-btn {
+      display: block;
+      width: 100%;
+      padding: 12px;
+      text-align: center;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      margin-bottom: 24px;
+      border: none;
+    }
+
+    .price-card .plan-btn.primary {
+      background: var(--primary);
+      color: white;
+    }
+
+    .price-card .plan-btn.primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .price-card .plan-btn.outline {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .price-card .plan-btn.outline:hover {
+      border-color: var(--primary);
+      color: var(--primary-light);
+    }
+
+    .plan-features {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .plan-features li {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .plan-features li .check {
+      color: var(--success);
+      font-weight: 700;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .plan-features li.disabled {
+      opacity: 0.4;
+      text-decoration: line-through;
+    }
+
+    /* Comparison */
+    .comparison {
+      max-width: 900px;
+      margin: 0 auto 80px;
+      padding: 0 20px;
+    }
+
+    .comparison h2 {
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 40px;
+      letter-spacing: -0.5px;
+    }
+
+    .comparison table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .comparison th, .comparison td {
+      padding: 16px 24px;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .comparison th {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .comparison td { font-size: 0.9rem; }
+
+    .comparison tr:last-child td { border-bottom: none; }
+
+    .comparison .highlight { color: var(--success); font-weight: 600; }
+    .comparison .dim { color: var(--text-muted); }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 40px 20px;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer a { color: var(--primary-light); text-decoration: none; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 { font-size: 2.2rem; }
+      .options { grid-template-columns: 1fr; }
+      .features-grid { grid-template-columns: 1fr; }
+      .pricing-grid { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto; }
+      nav { padding: 16px 20px; }
+      .nav-links { gap: 16px; }
+      .nav-links a { font-size: 0.8rem; }
+      .hero { padding: 40px 20px 20px; }
+      .upload-card { padding: 20px; }
+      .dropzone { padding: 32px 16px; }
+      table { font-size: 0.8rem; }
+      footer { padding: 30px 20px; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.8rem; }
+      .hero p { font-size: 1rem; }
+      .nav-links { gap: 10px; }
+      .nav-links a { font-size: 0.75rem; }
+      .badge { font-size: 0.7rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="logo">Simply<span>PDF</span></a>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#pricing">Pricing</a>
+    {% if user_id %}
+    <a href="/my-sites">My Sites</a>
+    <a href="/logout">Log Out</a>
+    {% else %}
+    <a href="/login">Log In</a>
+    <a href="/signup">Sign Up</a>
+    {% endif %}
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="badge">⚡ No sign-up required</div>
+  <h1>Host anything online in&nbsp;seconds</h1>
+  <p>Drag, drop, and get a shareable link instantly. HTML sites, PDFs, images — all with analytics, QR codes, and password protection. Free.</p>
+</section>
+
+<section class="upload-section">
+  <div class="upload-card">
+    <div class="dropzone" id="dropzone">
+      <div class="dropzone-icon">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+        </svg>
+      </div>
+      <h3>Drag &amp; drop your file here</h3>
+      <p>ZIP, HTML, PDF, images — up to 100 MB</p>
+      <input type="file" id="fileInput" style="display:none" accept=".html,.htm,.zip,.pdf,.png,.jpg,.jpeg,.gif,.svg,.webp,.css,.js,.json,.xml,.txt,.md,.csv,.doc,.docx,.ppt,.pptx,.xls,.xlsx">
+    </div>
+
+    <div class="file-selected" id="fileSelected">
+      <span class="file-name" id="fileName"></span>
+      <span class="file-size" id="fileSize"></span>
+      <button class="remove-file" id="removeFile" title="Remove file">&times;</button>
+    </div>
+
+    <div class="file-preview" id="filePreview" style="display:none; margin: 12px 0; padding: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius-sm); text-align: center; max-height: 200px; overflow: hidden;">
+      <img id="previewImg" style="max-width:100%; max-height:180px; border-radius:8px; display:none;">
+      <div id="previewText" style="text-align:left; font-family:monospace; font-size:0.8rem; color:var(--text-muted); white-space:pre-wrap; max-height:180px; overflow:auto; display:none;"></div>
+      <div id="previewIcon" style="display:none; padding: 20px; color: var(--text-muted); font-size: 0.9rem;"></div>
+    </div>
+
+    <div class="options">
+      <div class="input-group">
+        <label>Custom link name (optional)</label>
+        <input type="text" id="customSlug" placeholder="my-portfolio">
+      </div>
+      <div class="input-group">
+        <label>Password protect (optional)</label>
+        <input type="password" id="password" placeholder="Enter password">
+      </div>
+    </div>
+
+    <button class="upload-btn" id="uploadBtn" disabled>
+      <span class="btn-text">Upload &amp; Get Link</span>
+      <div class="spinner"></div>
+    </button>
+
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="result" id="result">
+      <h3>
+        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+        Your site is live!
+      </h3>
+      <div class="result-url">
+        <input type="text" id="resultUrl" readonly>
+        <button class="copy-btn" id="copyBtn">Copy</button>
+        <a class="link-btn" id="visitBtn" target="_blank" rel="noopener">Visit</a>
+      </div>
+      <div class="result-actions">
+        <a id="dashboardLink" target="_blank">📊 Analytics Dashboard</a>
+        <a id="qrLink" target="_blank">📱 Download QR Code</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="features" id="features">
+  <h2>Everything you need, nothing you don't</h2>
+  <p>The simplest way to host and share files online.</p>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feature-icon">🚀</div>
+      <h3>Instant Deploy</h3>
+      <p>No sign-up, no email, no credit card. Upload and get a link in under 10 seconds.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📊</div>
+      <h3>Built-in Analytics</h3>
+      <p>Track views, referrers, and daily traffic. See exactly who's visiting your site.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📱</div>
+      <h3>Auto QR Codes</h3>
+      <p>Every hosted file gets an auto-generated QR code. Perfect for print and events.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🔒</div>
+      <h3>Password Protection</h3>
+      <p>Add a password to restrict access. Great for client work and private documents.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">🎯</div>
+      <h3>Custom Link Names</h3>
+      <p>Choose your own URL slug for a clean, professional shareable link.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">📁</div>
+      <h3>Any File Type</h3>
+      <p>HTML sites, PDFs, images, documents, presentations — host virtually anything.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pricing" id="pricing">
+  <h2>Simple, transparent pricing</h2>
+  <p>Start free. Upgrade when you need more.</p>
+  <div class="billing-toggle">
+    <span class="active" id="monthlyLabel">Monthly</span>
+    <div class="toggle-switch" id="billingToggle"></div>
+    <span id="yearlyLabel">Yearly</span>
+    <span class="save-badge">Save 20%</span>
+  </div>
+  <div class="pricing-grid">
+
+    <div class="price-card">
+      <div class="plan-name">Free</div>
+      <div class="plan-desc">Perfect for trying it out</div>
+      <div class="price">
+        <span class="amount">$0</span>
+        <span class="period">/ forever</span>
+      </div>
+      <div class="billed">No credit card required</div>
+      <a href="#" class="plan-btn outline" onclick="scrollToUpload()">Get Started Free</a>
+      <ul class="plan-features">
+        <li><span class="check">&check;</span> 3 active projects</li>
+        <li><span class="check">&check;</span> 25 MB per upload</li>
+        <li><span class="check">&check;</span> Custom link names</li>
+        <li><span class="check">&check;</span> QR codes</li>
+        <li><span class="check">&check;</span> Basic analytics</li>
+        <li class="disabled"><span class="check">&check;</span> Password protection</li>
+        <li class="disabled"><span class="check">&check;</span> Custom domains</li>
+        <li class="disabled"><span class="check">&check;</span> Remove branding</li>
+      </ul>
+    </div>
+
+    <div class="price-card popular">
+      <div class="popular-badge">Most Popular</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-desc">For creators &amp; freelancers</div>
+      <div class="price">
+        <span class="amount" data-monthly="9" data-yearly="7">$9</span>
+        <span class="period">/ month</span>
+      </div>
+      <div class="billed" data-monthly="Billed monthly" data-yearly="Billed $84 /year">Billed monthly</div>
+      <button class="plan-btn primary" onclick="handleCheckout('pro')">Start 7-Day Free Trial</button>
+      <ul class="plan-features">
+        <li><span class="check">&check;</span> 25 active projects</li>
+        <li><span class="check">&check;</span> 100 MB per upload</li>
+        <li><span class="check">&check;</span> Custom link names</li>
+        <li><span class="check">&check;</span> QR codes</li>
+        <li><span class="check">&check;</span> Full analytics &amp; referrers</li>
+        <li><span class="check">&check;</span> Password protection</li>
+        <li><span class="check">&check;</span> Custom domains</li>
+        <li><span class="check">&check;</span> Remove branding</li>
+      </ul>
+    </div>
+
+    <div class="price-card">
+      <div class="plan-name">Business</div>
+      <div class="plan-desc">For teams &amp; agencies</div>
+      <div class="price">
+        <span class="amount" data-monthly="29" data-yearly="23">$29</span>
+        <span class="period">/ month</span>
+      </div>
+      <div class="billed" data-monthly="Billed monthly" data-yearly="Billed $276 /year">Billed monthly</div>
+      <button class="plan-btn outline" onclick="handleCheckout('business')">Start 7-Day Free Trial</button>
+      <ul class="plan-features">
+        <li><span class="check">&check;</span> Unlimited projects</li>
+        <li><span class="check">&check;</span> 1 GB per upload</li>
+        <li><span class="check">&check;</span> Everything in Pro</li>
+        <li><span class="check">&check;</span> Team members (up to 5)</li>
+        <li><span class="check">&check;</span> Email capture on pages</li>
+        <li><span class="check">&check;</span> Priority support</li>
+        <li><span class="check">&check;</span> API access</li>
+        <li><span class="check">&check;</span> White-label hosting</li>
+      </ul>
+    </div>
+
+  </div>
+</section>
+
+<section class="comparison" id="compare">
+  <h2>SimplyPDF vs competitors</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Feature</th>
+        <th>SimplyPDF</th>
+        <th>Others</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>No sign-up required</td>
+        <td class="highlight">Yes</td>
+        <td class="dim">No — account required</td>
+      </tr>
+      <tr>
+        <td>Free tier</td>
+        <td class="highlight">100 MB, unlimited</td>
+        <td class="dim">25 MB, 1 project</td>
+      </tr>
+      <tr>
+        <td>Custom link names</td>
+        <td class="highlight">Free</td>
+        <td class="dim">Paid ($13/mo)</td>
+      </tr>
+      <tr>
+        <td>Password protection</td>
+        <td class="highlight">Free</td>
+        <td class="dim">Paid ($13/mo)</td>
+      </tr>
+      <tr>
+        <td>QR codes</td>
+        <td class="highlight">Free</td>
+        <td class="dim">Paid ($5/mo)</td>
+      </tr>
+      <tr>
+        <td>Analytics</td>
+        <td class="highlight">Free</td>
+        <td class="dim">Paid ($5/mo)</td>
+      </tr>
+      <tr>
+        <td>Open source</td>
+        <td class="highlight">Yes</td>
+        <td class="dim">No</td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  <p>SimplyPDF — Instant file hosting. Built to be better.</p>
+  <p style="margin-top: 12px; font-size: 0.8rem;"><a href="/terms" style="color: var(--text-muted); text-decoration: none;">Terms</a> &middot; <a href="/privacy" style="color: var(--text-muted); text-decoration: none;">Privacy</a> &middot; <a href="/contact" style="color: var(--text-muted); text-decoration: none;">Contact</a></p>
+</footer>
+
+<script>
+  const dropzone = document.getElementById('dropzone');
+  const fileInput = document.getElementById('fileInput');
+  const fileSelected = document.getElementById('fileSelected');
+  const fileName = document.getElementById('fileName');
+  const fileSize = document.getElementById('fileSize');
+  const removeFile = document.getElementById('removeFile');
+  const uploadBtn = document.getElementById('uploadBtn');
+  const progressBar = document.getElementById('progressBar');
+  const progressFill = document.getElementById('progressFill');
+  const result = document.getElementById('result');
+  const resultUrl = document.getElementById('resultUrl');
+  const copyBtn = document.getElementById('copyBtn');
+  const visitBtn = document.getElementById('visitBtn');
+  const dashboardLink = document.getElementById('dashboardLink');
+  const qrLink = document.getElementById('qrLink');
+
+  let selectedFile = null;
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
+  }
+
+  const filePreview = document.getElementById('filePreview');
+  const previewImg = document.getElementById('previewImg');
+  const previewText = document.getElementById('previewText');
+  const previewIcon = document.getElementById('previewIcon');
+
+  function showPreview(file) {
+    previewImg.style.display = 'none';
+    previewText.style.display = 'none';
+    previewIcon.style.display = 'none';
+    filePreview.style.display = 'none';
+
+    const ext = file.name.split('.').pop().toLowerCase();
+    const imageExts = ['png','jpg','jpeg','gif','svg','webp','bmp'];
+    const textExts = ['html','htm','css','js','json','xml','txt','md','csv'];
+
+    if (imageExts.includes(ext)) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewImg.src = e.target.result;
+        previewImg.style.display = 'block';
+        filePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    } else if (textExts.includes(ext) && file.size < 50000) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewText.textContent = e.target.result.slice(0, 2000);
+        previewText.style.display = 'block';
+        filePreview.style.display = 'block';
+      };
+      reader.readAsText(file);
+    } else {
+      const icons = {pdf:'PDF Document', zip:'ZIP Archive', doc:'Word Document', docx:'Word Document', ppt:'Presentation', pptx:'Presentation', xls:'Spreadsheet', xlsx:'Spreadsheet'};
+      previewIcon.textContent = icons[ext] || file.type || 'File ready to upload';
+      previewIcon.style.display = 'block';
+      filePreview.style.display = 'block';
+    }
+  }
+
+  function setFile(file) {
+    if (!file) return;
+    if (file.size > 100 * 1024 * 1024) {
+      alert('File too large. Maximum size is 100 MB.');
+      return;
+    }
+    selectedFile = file;
+    fileName.textContent = file.name;
+    fileSize.textContent = formatSize(file.size);
+    fileSelected.classList.add('show');
+    uploadBtn.disabled = false;
+    showPreview(file);
+  }
+
+  function clearFile() {
+    selectedFile = null;
+    fileInput.value = '';
+    fileSelected.classList.remove('show');
+    uploadBtn.disabled = true;
+    filePreview.style.display = 'none';
+  }
+
+  dropzone.addEventListener('click', () => fileInput.click());
+
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.classList.add('dragover');
+  });
+
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.classList.remove('dragover');
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+  });
+
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) setFile(fileInput.files[0]);
+  });
+
+  removeFile.addEventListener('click', clearFile);
+
+  uploadBtn.addEventListener('click', async () => {
+    if (!selectedFile) return;
+
+    uploadBtn.classList.add('loading');
+    uploadBtn.disabled = true;
+    progressBar.classList.add('show');
+    result.classList.remove('show');
+
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+    formData.append('custom_slug', document.getElementById('customSlug').value);
+    formData.append('password', document.getElementById('password').value);
+
+    try {
+      // Simulate progress
+      let progress = 0;
+      const progressInterval = setInterval(() => {
+        progress = Math.min(progress + Math.random() * 15, 90);
+        progressFill.style.width = progress + '%';
+      }, 200);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      clearInterval(progressInterval);
+      progressFill.style.width = '100%';
+
+      if (!response.ok) {
+        const err = await response.json();
+        throw new Error(err.detail || 'Upload failed');
+      }
+
+      const data = await response.json();
+
+      resultUrl.value = data.url;
+      visitBtn.href = data.url;
+      dashboardLink.href = data.dashboard;
+      qrLink.href = data.qr_url;
+
+      setTimeout(() => {
+        result.classList.add('show');
+        progressBar.classList.remove('show');
+      }, 300);
+
+    } catch (err) {
+      alert(err.message);
+      progressBar.classList.remove('show');
+    } finally {
+      uploadBtn.classList.remove('loading');
+      uploadBtn.disabled = false;
+    }
+  });
+
+  copyBtn.addEventListener('click', () => {
+    resultUrl.select();
+    navigator.clipboard.writeText(resultUrl.value);
+    copyBtn.textContent = 'Copied!';
+    setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+  });
+
+  // Pricing toggle
+  const billingToggle = document.getElementById('billingToggle');
+  const monthlyLabel = document.getElementById('monthlyLabel');
+  const yearlyLabel = document.getElementById('yearlyLabel');
+  let isYearly = false;
+
+  billingToggle.addEventListener('click', () => {
+    isYearly = !isYearly;
+    billingToggle.classList.toggle('active', isYearly);
+    monthlyLabel.classList.toggle('active', !isYearly);
+    yearlyLabel.classList.toggle('active', isYearly);
+
+    document.querySelectorAll('.price-card .amount[data-monthly]').forEach(el => {
+      const price = isYearly ? el.dataset.yearly : el.dataset.monthly;
+      el.textContent = '$' + price;
+    });
+
+    document.querySelectorAll('.price-card .billed[data-monthly]').forEach(el => {
+      el.textContent = isYearly ? el.dataset.yearly : el.dataset.monthly;
+    });
+  });
+
+  function scrollToUpload() {
+    document.getElementById('dropzone').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  function handleCheckout(plan) {
+    const billing = isYearly ? 'yearly' : 'monthly';
+    const prices = {
+      'pro-monthly': 'price_1TSZ2gB9EIpVz3DU5iGjDkP2',
+      'pro-yearly': 'price_1TSZ8VB9EIpVz3DUrTZjGpCq',
+      'business-monthly': 'price_1TSZ4GB9EIpVz3DUwxwvJYrG',
+      'business-yearly': 'price_1TSZ9KB9EIpVz3DUNOjnTIjE',
+    };
+    const priceKey = plan + '-' + billing;
+    const priceId = prices[priceKey];
+
+    if (!priceId) {
+      alert('Invalid plan selected.');
+      return;
+    }
+
+
+    fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ price_id: priceId })
+    })
+    .then(r => r.json().then(data => ({ ok: r.ok, data })))
+    .then(({ ok, data }) => {
+      if (!ok || !data.checkout_url) {
+        alert(data.detail || 'Checkout is not available right now. Please try again later.');
+        return;
+      }
+      window.location.href = data.checkout_url;
+    })
+    .catch(() => alert('Something went wrong. Please try again.'));
+  }
+</script>
+
+</body>
+</html>
